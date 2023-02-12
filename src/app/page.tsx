@@ -1,91 +1,45 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
-
-const inter = Inter({ subsets: ['latin'] })
-
+'use client'
+import { POSTS } from '@/data/post'
+import { wait, reject } from '@/helpers/wait'
+import useCount, { useGrumpyStore } from '@/hooks/count'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { Fragment } from 'react'
+import { shallow } from 'zustand/shallow'
 export default function Home() {
+  const { profile, count } = useCount(({ profile, count }) => ({ profile, count }), shallow)
+  const dispatch = useCount(({ dispatch }) => dispatch)
+
+  const { bears, increasePopulation } = useGrumpyStore()
+  const postsQuery = useQuery({
+    queryKey: ['posts'],
+    queryFn: async ctx => {
+      // await reject(0)
+      const sec = await wait(1000)
+      console.log(sec)
+      return POSTS
+    }
+  })
+  if (postsQuery.isLoading) return <h1>Loading...</h1>
+  if (postsQuery.isError) return <pre>{JSON.stringify(postsQuery.error)}</pre>
+  console.log('rerender')
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+    <main>
+      <h1>Tanstack Query</h1>
+      <dl>
+        {postsQuery.data.map(v => (
+          <Fragment key={v.id}>
+            <dt>{v.title}</dt>
+            <dd>ID: {v.id}</dd>
+          </Fragment>
+        ))}
+      </dl>
+      <h2>{count}</h2>
+      <h2>{profile.firstName}</h2>
+      <button onClick={() => dispatch({ type: 'increase', by: 2 })}>Increment ++ </button>
+      <button onClick={() => dispatch({ type: 'setName' })}>SetName Alfi</button>
+      <h2>{bears}</h2>
+      <button onClick={increasePopulation}>Increment ++ </button>
     </main>
   )
 }
