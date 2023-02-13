@@ -12,9 +12,17 @@ export default function Home() {
       // await reject(0)
       const sec = await wait(1000)
       console.log(sec)
-      return POSTS
+      return [...POSTS]
     }
   })
+
+  const postMutation = useMutation({
+    mutationFn: async (title: string) => {
+      await wait(1000)
+      POSTS.push({ id: Math.random() * 1000, title })
+    }
+  })
+
   if (postsQuery.isLoading) return <h1>Loading...</h1>
   if (postsQuery.isError) return <pre>{JSON.stringify(postsQuery.error)}</pre>
 
@@ -29,6 +37,7 @@ export default function Home() {
           </Fragment>
         ))}
       </dl>
+      <button onClick={() => postMutation.mutate('New Posts')}>Add New Post</button>
       <h2>{count}</h2>
       <h2>{profile.identitas.kota}</h2>
       <button onClick={() => dispatch({ type: 'increase', by: 2 })}>Increment ++ </button>
