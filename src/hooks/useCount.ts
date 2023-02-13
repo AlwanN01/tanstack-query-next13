@@ -2,12 +2,6 @@ import { produce } from 'immer'
 import { wait } from '@/helpers/wait'
 import createStore from '@/lib/zustand'
 
-type Args = {
-  type: 'increase' | 'decrease' | 'setKota'
-  by?: number
-  kota?: string
-}
-type CountType = typeof initState
 const initState = {
   count: 0,
   profile: {
@@ -19,6 +13,12 @@ const initState = {
       alamat: 'Margahayu'
     }
   }
+}
+type CountType = typeof initState
+type Args = {
+  type: 'increase' | 'decrease' | 'setKota'
+  by?: number
+  kota?: string
 }
 const reducer = produce(async (state: CountType, action: Args) => {
   const { type, by = 1 } = action

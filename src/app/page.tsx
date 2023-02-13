@@ -1,7 +1,7 @@
 'use client'
 import { POSTS } from '@/data/post'
 import { wait, reject } from '@/helpers/wait'
-import { useCount } from '@/hooks/count'
+import { useCount } from '@/hooks/useCount'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { Fragment } from 'react'
 export default function Home() {
@@ -20,7 +20,7 @@ export default function Home() {
 
   return (
     <main>
-      <h1>Tanstack Query</h1>
+      <h1>Tanstack Query </h1>
       <dl>
         {postsQuery.data.map(v => (
           <Fragment key={v.id}>

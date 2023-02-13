@@ -1,17 +1,17 @@
 import { create } from 'zustand'
 import { combine, devtools } from 'zustand/middleware'
-type Reducer<State, Args> = (state: State, args: Args) => any
+type Reducer<Args> = (state: any, args: Args) => any
 type Options = {
-  nameStore: string
+  nameStore?: string
   isLogging?: boolean
   hallo?: string
 }
 export default function createStore<State extends object, Args extends { type: string }>(
   initState: State,
-  reducer: Reducer<State, Args>,
-  options: Options = { nameStore: 'My Store', isLogging: false }
+  reducer: Reducer<Args>,
+  options: Options = {}
 ) {
-  const { nameStore, isLogging } = options
+  const { nameStore = 'My Store', isLogging = false } = options
   return create(
     devtools(
       combine(initState, (set, get) => ({
@@ -21,7 +21,7 @@ export default function createStore<State extends object, Args extends { type: s
           isLogging && console.log('new State', get())
         }
       })),
-      { name: nameStore || 'My Store', enabled: process.env.NODE_ENV == 'production' ? false : true }
+      { name: nameStore, enabled: process.env.NODE_ENV == 'production' ? false : true }
     )
   )
 }
