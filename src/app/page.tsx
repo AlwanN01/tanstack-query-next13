@@ -1,15 +1,11 @@
 'use client'
 import { POSTS } from '@/data/post'
 import { wait, reject } from '@/helpers/wait'
-import useCount, { useGrumpyStore } from '@/hooks/count'
+import { useCount } from '@/hooks/count'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { Fragment } from 'react'
-import { shallow } from 'zustand/shallow'
 export default function Home() {
-  const { profile, count } = useCount(({ profile, count }) => ({ profile, count }), shallow)
-  const dispatch = useCount(({ dispatch }) => dispatch)
-
-  const { bears, increasePopulation } = useGrumpyStore()
+  const { count, profile, dispatch } = useCount()
   const postsQuery = useQuery({
     queryKey: ['posts'],
     queryFn: async ctx => {
@@ -21,7 +17,6 @@ export default function Home() {
   })
   if (postsQuery.isLoading) return <h1>Loading...</h1>
   if (postsQuery.isError) return <pre>{JSON.stringify(postsQuery.error)}</pre>
-  console.log('rerender')
 
   return (
     <main>
@@ -35,11 +30,12 @@ export default function Home() {
         ))}
       </dl>
       <h2>{count}</h2>
-      <h2>{profile.firstName}</h2>
+      <h2>{profile.identitas.kota}</h2>
       <button onClick={() => dispatch({ type: 'increase', by: 2 })}>Increment ++ </button>
-      <button onClick={() => dispatch({ type: 'setName' })}>SetName Alfi</button>
-      <h2>{bears}</h2>
-      <button onClick={increasePopulation}>Increment ++ </button>
+      <br />
+      <br />
+      <input type='text' id='setKota' />
+      <button onClick={() => dispatch({ type: 'setKota', kota: document.querySelector<HTMLInputElement>('#setKota')!.value })}>SetName Kota</button>
     </main>
   )
 }
