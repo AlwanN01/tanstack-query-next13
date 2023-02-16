@@ -1,6 +1,7 @@
 import { produce } from 'immer'
 import { wait } from '@/helpers/wait'
 import createStore from '@/lib/zustand'
+import { createElement } from 'react'
 
 const initState = {
   count: 0,
@@ -12,13 +13,15 @@ const initState = {
       kota: 'Bandung',
       alamat: 'Margahayu'
     }
-  }
+  },
+  element: createElement('h1', { onClick: e => console.log(e.currentTarget.innerHTML) }, 'Element') as unknown as React.ReactNode
 }
 type CountType = typeof initState
 type Args = {
-  type: 'increase' | 'decrease' | 'setKota'
+  type: 'increase' | 'decrease' | 'setKota' | 'changeElement'
   by?: number
   kota?: string
+  element?: React.ReactNode
 }
 const reducer = produce(async (state: CountType, action: Args) => {
   const { type, by = 1 } = action
@@ -35,6 +38,9 @@ const reducer = produce(async (state: CountType, action: Args) => {
     case 'setKota':
       const kota = await wait(action.kota)
       identitas.kota = kota || identitas.kota
+      break
+    case 'changeElement':
+      state.element = action.element!
       break
   }
 })
