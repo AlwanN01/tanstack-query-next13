@@ -3,19 +3,9 @@ import { POSTS } from '@/data/post'
 import { wait, reject } from '@/helpers/wait'
 import { useCount } from '@/hooks/useCount'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Fragment } from 'react'
-import { atom, useAtom } from 'jotai'
-
-const countAtom = atom(0)
-const countryAtom = atom('Japan')
-const citiesAtom = atom(['Tokyo', 'Kyoto', 'Osaka'])
-const mangaAtom = atom({ 'Dragon Ball': 1984, 'One Piece': 1997, Naruto: 1999 })
-const doubledCountAtom = atom(get => get(countAtom) * 2)
+import { Fragment, useMemo } from 'react'
 
 export default function Home() {
-  const [doubledCount] = useAtom(doubledCountAtom)
-  const [atomCount, setAtomCount] = useAtom(countAtom)
-
   const querClient = useQueryClient()
   const { count, profile, element, dispatch } = useCount()
   const postsQuery = useQuery({
@@ -37,15 +27,11 @@ export default function Home() {
     onSuccess: () => querClient.invalidateQueries(['posts'])
   })
 
-  if (postsQuery.isLoading) return <h1>Loading...</h1>
+  if (postsQuery.isLoading) return <h1>Loading...{count}</h1>
   if (postsQuery.isError) return <pre>{JSON.stringify(postsQuery.error)}</pre>
 
   return (
     <main>
-      <h1>{atomCount}</h1>
-      <CountAtom />
-      <CountAtom />
-      <h2>{doubledCount}</h2>
       <h1>Tanstack Query</h1>
       <dl>
         {postsQuery.data.map(v => (
@@ -60,7 +46,6 @@ export default function Home() {
       </button>
       <h2>{count}</h2>
       <button onClick={() => dispatch({ type: 'increase', by: 2 })}>Increment ++ </button>
-      {element}
       <button onClick={() => dispatch({ type: 'changeElement', element: <h2>Awesome</h2> })}>Change Element</button>
       <br />
       <br />
@@ -68,14 +53,5 @@ export default function Home() {
       <input type='text' id='setKota' />
       <button onClick={() => dispatch({ type: 'setKota', kota: document.querySelector<HTMLInputElement>('#setKota')!.value })}>SetName Kota</button>
     </main>
-  )
-}
-function CountAtom() {
-  const [atomCount, setAtomCount] = useAtom(countAtom)
-  return (
-    <div>
-      <h2>{atomCount}</h2>
-      <button onClick={() => setAtomCount(c => c + 1)}>one up</button>
-    </div>
   )
 }

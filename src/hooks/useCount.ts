@@ -14,7 +14,7 @@ const initState = {
       alamat: 'Margahayu'
     }
   },
-  element: createElement('h1', { onClick: e => console.log(e.currentTarget.innerHTML) }, 'Element') as unknown as React.ReactNode
+  element: createElement('button', { onClick: e => console.log(e.currentTarget.innerHTML) }, 'Button Element') as unknown as React.ReactNode
 }
 type CountType = typeof initState
 type Args = {
@@ -28,19 +28,14 @@ const reducer = produce(async (state: CountType, action: Args) => {
   const {
     profile: { identitas }
   } = state
+  // prettier-ignore
   switch (type) {
-    case 'increase':
-      state.count = state.count + by
-      break
-    case 'decrease':
-      state.count = state.count - by
-      break
+    case 'increase': state.count = state.count + by; break 
+    case 'decrease': state.count = state.count - by; break
+    case 'changeElement': state.element = action.element!; break
     case 'setKota':
       const kota = await wait(action.kota)
       identitas.kota = kota || identitas.kota
-      break
-    case 'changeElement':
-      state.element = action.element!
       break
   }
 })
