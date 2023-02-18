@@ -14,7 +14,7 @@ export type SetState<State> = (
       }
     | undefined
 ) => void
-type HandlerStore<State, Method> = (set: SetState<State>) => Method
+type HandlerStore<State, Method> = (set: SetState<State>, get: () => State) => Method
 type Reducer<State, Args> = (state: State, args: Args) => any
 type Options = {
   nameStore?: string
@@ -40,7 +40,7 @@ export default function createStore<State extends object, Args extends { type: u
               isLogging && console.log('new State', get())
             },
             set,
-            ...handler!(set)
+            ...handler!(set, get)
           }))
         ),
         { name: '', storage: undefined }
