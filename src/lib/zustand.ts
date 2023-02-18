@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { combine, persist, devtools, StateStorage, createJSONStorage } from 'zustand/middleware'
+import { immer } from 'zustand/middleware/immer'
 import { get, set, del } from 'idb-keyval' // can use anything: IndexedDB, Ionic Storage, etc.
 type Reducer<Args> = (state: any, args: Args) => any
 type Options = {
@@ -9,21 +10,24 @@ type Options = {
 }
 export default function createStore<State extends object, Args extends { type: string }>(
   initState: State,
-  reducer: Reducer<Args>,
+  reducer?: Reducer<Args>,
   options: Options = {}
 ) {
   const { nameStore = 'My Store', isLogging = false } = options
   return create(
     devtools(
       persist(
-        combine(initState, (set, get) => ({
-          dispatch: async (args: Args) => {
-            isLogging && console.log('old State', get())
-            set(await reducer(get(), args), false, args)
-            isLogging && console.log('new State', get())
-          }
-        })),
-        { name: 'count-storage', storage: undefined }
+        immer(
+          combine(initState, (set, get) => ({
+            dispatch: async (args: Args) => {
+              isLogging && console.log('old State', get())
+              set(reducer ? await reducer(get(), args) : state => state, false, args)
+              isLogging && console.log('new State', get())
+            },
+            set
+          }))
+        ),
+        { name: '', storage: undefined }
       ),
       { name: nameStore, enabled: process.env.NODE_ENV == 'production' ? false : true }
     )

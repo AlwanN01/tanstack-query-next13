@@ -1,13 +1,16 @@
 'use client'
 import { POSTS } from '@/data/post'
 import { wait, reject } from '@/helpers/wait'
-import { useCount } from '@/hooks/useCount'
+import { useCount, useMethodCount } from '@/hooks/useCount'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Fragment, useMemo } from 'react'
+import { Fragment, useMemo, useRef } from 'react'
 
 export default function Home() {
+  const refKota = useRef<HTMLInputElement>(null)
+
   const querClient = useQueryClient()
   const { count, profile, element, dispatch } = useCount()
+  const { getButtonInnerHtml, setKota } = useMethodCount()
   const postsQuery = useQuery({
     queryKey: ['posts'],
     queryFn: async ctx => {
@@ -27,7 +30,7 @@ export default function Home() {
     onSuccess: () => querClient.invalidateQueries(['posts'])
   })
 
-  if (postsQuery.isLoading) return <h1>Loading...{count}</h1>
+  if (postsQuery.isLoading) return <h1>Loading</h1>
   if (postsQuery.isError) return <pre>{JSON.stringify(postsQuery.error)}</pre>
 
   return (
@@ -45,13 +48,16 @@ export default function Home() {
         Add New Post
       </button>
       <h2>{count}</h2>
-      <button onClick={() => dispatch({ type: 'increase', by: 2 })}>Increment ++ </button>
-      <button onClick={() => dispatch({ type: 'changeElement', element: <h2>Awesome</h2> })}>Change Element</button>
+      {element}
+      <br />
+      <br />
+      <button onClick={() => dispatch({ type: 'increase' })}>Increment ++ </button>
+      <button onClick={getButtonInnerHtml}>Change Element</button>
       <br />
       <br />
       <h2>{profile.identitas.kota}</h2>
-      <input type='text' id='setKota' />
-      <button onClick={() => dispatch({ type: 'setKota', kota: document.querySelector<HTMLInputElement>('#setKota')!.value })}>SetName Kota</button>
+      <input type='text' id='setKota' ref={refKota} />
+      <button onClick={setKota(refKota)}>SetName Kota</button>
     </main>
   )
 }

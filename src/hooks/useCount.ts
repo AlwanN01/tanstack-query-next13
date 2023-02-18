@@ -39,4 +39,14 @@ const reducer = produce(async (state: CountType, action: Args) => {
       break
   }
 })
-export const useCount = createStore(initState, reducer)
+export const useCount = createStore(initState)
+
+export function useMethodCount() {
+  const set = useCount(state => state.set)
+  const getButtonInnerHtml = (e: React.MouseEvent) => set({ element: e.currentTarget.innerHTML })
+  const setKota = (ref: React.RefObject<HTMLInputElement>) => () =>
+    set(state => {
+      state.profile.identitas.kota = ref.current!.value
+    })
+  return { getButtonInnerHtml, setKota }
+}
