@@ -2,18 +2,33 @@ import { create } from 'zustand'
 import { combine, persist, devtools, StateStorage, createJSONStorage } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { get, set, del } from 'idb-keyval' // can use anything: IndexedDB, Ionic Storage, etc.
-type Reducer<Args> = (state: any, args: Args) => any
+import { Immutable, produce } from 'immer'
+import type { Draft } from 'immer'
+export type SetState<State> = (
+  nextStateOrUpdater: State | Partial<State> | ((state: Draft<State>) => void),
+  shouldReplace?: boolean | undefined,
+  action?:
+    | string
+    | {
+        type: unknown
+      }
+    | undefined
+) => void
+type HandlerStore<State, Method> = (set: SetState<State>) => Method
+type Reducer<State, Args> = (state: State, args: Args) => any
 type Options = {
   nameStore?: string
   isLogging?: boolean
   hallo?: string
 }
-export default function createStore<State extends object, Args extends { type: string }>(
+export default function createStore<State extends object, Args extends { type: unknown }, Method>(
   initState: State,
-  reducer?: Reducer<Args>,
+  handler?: HandlerStore<State, Method>,
+  reducer?: Reducer<State, Args>,
   options: Options = {}
 ) {
   const { nameStore = 'My Store', isLogging = false } = options
+  const immerReducer = reducer && produce(reducer)
   return create(
     devtools(
       persist(
@@ -21,10 +36,11 @@ export default function createStore<State extends object, Args extends { type: s
           combine(initState, (set, get) => ({
             dispatch: async (args: Args) => {
               isLogging && console.log('old State', get())
-              set(reducer ? await reducer(get(), args) : state => state, false, args)
+              set(reducer ? await immerReducer!(get() as unknown as Immutable<State>, args) : state => state, false, args)
               isLogging && console.log('new State', get())
             },
-            set
+            set,
+            ...handler!(set)
           }))
         ),
         { name: '', storage: undefined }

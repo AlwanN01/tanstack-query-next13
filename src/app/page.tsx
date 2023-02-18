@@ -1,7 +1,7 @@
 'use client'
 import { POSTS } from '@/data/post'
 import { wait, reject } from '@/helpers/wait'
-import { useCount, useMethodCount } from '@/hooks/useCount'
+import { useCount } from '@/hooks/useCount'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Fragment, useMemo, useRef } from 'react'
 
@@ -9,8 +9,7 @@ export default function Home() {
   const refKota = useRef<HTMLInputElement>(null)
 
   const querClient = useQueryClient()
-  const { count, profile, element, dispatch } = useCount()
-  const { getButtonInnerHtml, setKota } = useMethodCount()
+  const { count, profile, element, dispatch, getButtonInnerHtml, setKota } = useCount()
   const postsQuery = useQuery({
     queryKey: ['posts'],
     queryFn: async ctx => {
@@ -51,7 +50,7 @@ export default function Home() {
       {element}
       <br />
       <br />
-      <button onClick={() => dispatch({ type: 'increase' })}>Increment ++ </button>
+      <button onClick={() => dispatch({ type: 'increase', by: 2 })}>Increment ++ </button>
       <button onClick={getButtonInnerHtml}>Change Element</button>
       <br />
       <br />

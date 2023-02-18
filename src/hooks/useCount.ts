@@ -1,6 +1,5 @@
-import { produce } from 'immer'
 import { wait } from '@/helpers/wait'
-import createStore from '@/lib/zustand'
+import createStore, { SetState } from '@/lib/zustand'
 import { createElement } from 'react'
 
 const initState = {
@@ -23,7 +22,7 @@ type Args = {
   kota?: string
   element?: React.ReactNode
 }
-const reducer = produce(async (state: CountType, action: Args) => {
+const reducer = async (state: CountType, action: Args) => {
   const { type, by = 1 } = action
   const {
     profile: { identitas }
@@ -38,15 +37,23 @@ const reducer = produce(async (state: CountType, action: Args) => {
       identitas.kota = kota || identitas.kota
       break
   }
-})
-export const useCount = createStore(initState)
-
-export function useMethodCount() {
-  const set = useCount(state => state.set)
-  const getButtonInnerHtml = (e: React.MouseEvent) => set({ element: e.currentTarget.innerHTML })
-  const setKota = (ref: React.RefObject<HTMLInputElement>) => () =>
+}
+const handler = (set: SetState<CountType>) => ({
+  getButtonInnerHtml: (e: React.MouseEvent) => set({ element: e.currentTarget.innerHTML }),
+  setKota: (ref: React.RefObject<HTMLInputElement>) => () =>
     set(state => {
       state.profile.identitas.kota = ref.current!.value
     })
-  return { getButtonInnerHtml, setKota }
-}
+})
+export const useCount = createStore(initState, handler, reducer)
+
+// export function useMethodCount() {
+//   const set = useCount(state => state.set)
+//   return {
+//     getButtonInnerHtml: (e: React.MouseEvent) => set({ element: e.currentTarget.innerHTML }),
+//     setKota: (ref: React.RefObject<HTMLInputElement>) => () =>
+//       set(state => {
+//         state.profile.identitas.kota = ref.current!.value
+//       })
+//   }
+// }
