@@ -1,5 +1,5 @@
 import { wait } from '@/helpers/wait'
-import createStore, { SetState } from '@/lib/zustand'
+import { createStore, SetState } from '@/lib/zustand'
 import { createElement } from 'react'
 
 const initState = {
@@ -16,6 +16,15 @@ const initState = {
   element: createElement('button', { onClick: e => console.log(e.currentTarget.innerHTML) }, 'Button Element') as unknown as React.ReactNode
 }
 type CountType = typeof initState
+
+const handler = (set: SetState<CountType>) => ({
+  getButtonInnerHtml: (e: React.MouseEvent) => set({ element: e.currentTarget.innerHTML }),
+  setKota: (ref: React.RefObject<HTMLInputElement>) => () =>
+    set(state => {
+      state.profile.identitas.kota = ref.current!.value
+    })
+})
+
 type Args = {
   type: 'increase' | 'decrease' | 'setKota' | 'changeElement'
   by?: number
@@ -38,14 +47,12 @@ const reducer = async (state: CountType, action: Args) => {
       break
   }
 }
-const handler = (set: SetState<CountType>) => ({
-  getButtonInnerHtml: (e: React.MouseEvent) => set({ element: e.currentTarget.innerHTML }),
-  setKota: (ref: React.RefObject<HTMLInputElement>) => () =>
-    set(state => {
-      state.profile.identitas.kota = ref.current!.value
-    })
-})
 export const useCount = createStore(initState, handler, reducer)
+
+export const setKota = () =>
+  useCount.setState(state => {
+    state.profile.identitas.kota = 'Garut'
+  })
 
 // export function useMethodCount() {
 //   const set = useCount(state => state.set)

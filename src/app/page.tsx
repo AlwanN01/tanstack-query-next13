@@ -1,15 +1,17 @@
 'use client'
 import { POSTS } from '@/data/post'
 import { wait, reject } from '@/helpers/wait'
-import { useCount } from '@/hooks/useCount'
+import { useCount, setKota } from '@/hooks/useCount'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Fragment, useMemo, useRef } from 'react'
 
+setKota()
 export default function Home() {
   const refKota = useRef<HTMLInputElement>(null)
 
   const querClient = useQueryClient()
-  const { count, profile, element, dispatch, getButtonInnerHtml, setKota } = useCount()
+  const { count, profile, element, getButtonInnerHtml, setKota } = useCount()
+  const dispatch = useCount.use.dispatch()
   const postsQuery = useQuery({
     queryKey: ['posts'],
     queryFn: async ctx => {

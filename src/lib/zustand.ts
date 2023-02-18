@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create, StoreApi, UseBoundStore } from 'zustand'
 import { combine, persist, devtools, StateStorage, createJSONStorage } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
 import { get, set, del } from 'idb-keyval' // can use anything: IndexedDB, Ionic Storage, etc.
@@ -21,7 +21,7 @@ type Options = {
   isLogging?: boolean
   hallo?: string
 }
-export default function createStore<State extends object, Args extends { type: unknown }, Method>(
+export function createStore<State extends object, Args extends { type: string; [key: string]: any }, Method>(
   initState: State,
   handler?: HandlerStore<State, Method>,
   reducer?: Reducer<State, Args>,
@@ -29,25 +29,38 @@ export default function createStore<State extends object, Args extends { type: u
 ) {
   const { nameStore = 'My Store', isLogging = false } = options
   const immerReducer = reducer && produce(reducer)
-  return create(
-    devtools(
-      persist(
-        immer(
-          combine(initState, (set, get) => ({
-            dispatch: async (args: Args) => {
-              isLogging && console.log('old State', get())
-              set(reducer ? await immerReducer!(get() as unknown as Immutable<State>, args) : state => state, false, args)
-              isLogging && console.log('new State', get())
-            },
-            set,
-            ...handler!(set, get)
-          }))
+  return createSelectors(
+    create(
+      devtools(
+        persist(
+          immer(
+            combine(initState, (set, get) => ({
+              dispatch: async (args: Args) => {
+                isLogging && console.log('old State', get())
+                set(reducer ? await immerReducer!(get() as unknown as Immutable<State>, args) : state => state, false, args)
+                isLogging && console.log('new State', get())
+              },
+              set,
+              ...handler!(set, get)
+            }))
+          ),
+          { name: '', storage: undefined }
         ),
-        { name: '', storage: undefined }
-      ),
-      { name: nameStore, enabled: process.env.NODE_ENV == 'production' ? false : true }
+        { name: nameStore, enabled: process.env.NODE_ENV == 'production' ? false : true }
+      )
     )
   )
+}
+
+type WithSelectors<S> = S extends { getState: () => infer T } ? S & { use: { [K in keyof T]: () => T[K] } } : never
+export function createSelectors<S extends UseBoundStore<StoreApi<object>>>(_store: S) {
+  let store = _store as WithSelectors<typeof _store>
+  store.use = {}
+  for (let k of Object.keys(store.getState())) {
+    ;(store.use as any)[k] = () => store(s => s[k as keyof typeof s])
+  }
+
+  return store
 }
 
 // Custom storage object
