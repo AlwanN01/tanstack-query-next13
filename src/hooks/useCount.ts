@@ -13,7 +13,9 @@ const initState = {
       alamat: 'Margahayu'
     }
   },
-  element: createElement('button', { onClick: e => console.log(e.currentTarget.innerHTML) }, 'Button Element') as unknown as React.ReactNode
+  element: createElement('button', { onClick: e => console.log(e.currentTarget.innerHTML) }, 'Button Element') as unknown as React.ReactNode,
+  data: null as any,
+  isLoading: false
 }
 type CountType = typeof initState
 
@@ -26,16 +28,22 @@ const handler = (set: SetState<CountType>) => ({
 })
 
 type Args = {
-  type: 'increase' | 'decrease' | 'setKota' | 'changeElement'
+  type: 'increase' | 'decrease' | 'setKota' | 'changeElement' | 'getData' | 'getOther'
   by?: number
   kota?: string
   element?: React.ReactNode
+  data?: any
 }
-const reducer = async (state: CountType, action: Args) => {
+const reducer = async (state: CountType, action: Args, set: SetState<CountType>) => {
   const { type, by = 1 } = action
   const {
     profile: { identitas }
   } = state
+  switch (type) {
+    case 'getData':
+    case 'getOther':
+      set({ isLoading: true }) //reRender
+  }
   // prettier-ignore
   switch (type) {
     case 'increase': state.count = state.count + by; break 
@@ -45,7 +53,12 @@ const reducer = async (state: CountType, action: Args) => {
       const kota = await wait(action.kota)
       identitas.kota = kota || identitas.kota
       break
+    case 'getData':
+      await wait(1000)
+      state.data = action.data
+      break
   }
+  state.isLoading = false
 }
 export const useCount = createStore(initState, handler, reducer)
 

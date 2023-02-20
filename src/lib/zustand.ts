@@ -15,7 +15,7 @@ export type SetState<State> = (
     | undefined
 ) => void
 type HandlerStore<State, Method> = (set: SetState<State>, get: () => State) => Method
-type Reducer<State, Args> = (state: State, args: Args) => any
+type Reducer<State, Args> = (state: State, args: Args, set: SetState<State>, get: () => State) => any
 type Options = {
   nameStore?: string
   isLogging?: boolean
@@ -37,7 +37,7 @@ export function createStore<State extends object, Args extends { type: string; [
             combine(initState, (set, get) => ({
               dispatch: async (args: Args) => {
                 isLogging && console.log('old State', get())
-                set(reducer ? await immerReducer!(get() as unknown as Immutable<State>, args) : state => state, false, args)
+                set(reducer ? await immerReducer!(get() as unknown as Immutable<State>, args, set, get) : state => state, false, args)
                 isLogging && console.log('new State', get())
               },
               set,

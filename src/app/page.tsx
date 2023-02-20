@@ -10,18 +10,18 @@ export default function Home() {
   const refKota = useRef<HTMLInputElement>(null)
 
   const querClient = useQueryClient()
-  const { count, profile, element, getButtonInnerHtml, setKota } = useCount()
+  const { count, profile, element, getButtonInnerHtml, setKota, isLoading } = useCount()
   const dispatch = useCount.use.dispatch()
   const postsQuery = useQuery({
     queryKey: ['posts'],
     queryFn: async ctx => {
       // await reject(0)
       const sec = await wait(1000)
-      console.log(sec)
       return [...POSTS]
     }
   })
   console.log('rendered')
+  console.log('isloading', isLoading)
 
   const postMutation = useMutation({
     mutationFn: async (title: string) => {
@@ -59,6 +59,9 @@ export default function Home() {
       <h2>{profile.identitas.kota}</h2>
       <input type='text' id='setKota' ref={refKota} />
       <button onClick={setKota(refKota)}>SetName Kota</button>
+      <br />
+      <br />
+      <button onClick={() => dispatch({ type: 'getData', data: 'myData' })}>Get Data</button>
     </main>
   )
 }
