@@ -1,3 +1,4 @@
+import './globals.css'
 import Providers from './providers'
 import Link from 'next/link'
 import type { Metadata } from 'next'
@@ -5,6 +6,7 @@ import RootStyleRegistry from './emotion'
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en'>
+      <head />
       <body>
         <RootStyleRegistry>
           <Providers>
