@@ -1,3 +1,4 @@
+'use client'
 import { create, StoreApi, UseBoundStore } from 'zustand'
 import { combine, persist, devtools, StateStorage, createJSONStorage } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'

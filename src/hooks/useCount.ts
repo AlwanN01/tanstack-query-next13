@@ -1,3 +1,4 @@
+'use client'
 import { wait } from '@/helpers/wait'
 import { createStore, SetState } from '@/lib/zustand'
 import { createElement } from 'react'

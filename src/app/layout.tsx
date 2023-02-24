@@ -1,16 +1,18 @@
-import './globals.css'
-import type { Metadata } from 'next'
 import Providers from './providers'
+import Link from 'next/link'
+import type { Metadata } from 'next'
+import RootStyleRegistry from './emotion'
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='en'>
-      {/*
-        <head /> will contain the components returned by the nearest parent
-        head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-      */}
-      <head />
       <body>
-        <Providers>{children}</Providers>
+        <RootStyleRegistry>
+          <Providers>
+            <Link href={'/'}>Home</Link>
+            <Link href={'/supabase'}>Supabase</Link>
+            {children}
+          </Providers>
+        </RootStyleRegistry>
       </body>
     </html>
   )
@@ -22,6 +24,5 @@ export const metadata: Metadata = {
   viewport: {
     width: 'device-width',
     initialScale: 1
-  },
-  icons: '/favicon.ico'
+  }
 }
