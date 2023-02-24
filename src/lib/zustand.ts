@@ -32,21 +32,18 @@ export function createStore<State extends object, Args extends { type: string; [
   return createSelectors(
     create(
       devtools(
-        persist(
-          immer(
-            combine(initState, (set, get) => ({
-              dispatch: async (args: Args) => {
-                isLogging && console.log('old State', get())
-                set(reducer ? await immerReducer!(get() as unknown as Immutable<State>, args, set, get) : state => state, false, args)
-                isLogging && console.log('new State', get())
-              },
-              set,
-              ...handler!(set, get)
-            }))
-          ),
-          { name: '', storage: undefined }
+        immer(
+          combine(initState, (set, get) => ({
+            dispatch: async (args: Args) => {
+              isLogging && console.log('old State', get())
+              set(reducer ? await immerReducer!(get() as unknown as Immutable<State>, args, set, get) : state => state, false, args)
+              isLogging && console.log('new State', get())
+            },
+            set,
+            ...handler!(set, get)
+          }))
         ),
-        { name: nameStore, enabled: process.env.NODE_ENV == 'production' ? false : true }
+        { name: nameStore, enabled: process.env.NODE_ENV == 'production' ? false : undefined }
       )
     )
   )

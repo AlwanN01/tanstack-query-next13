@@ -5,7 +5,6 @@ import { useCount, setKota } from '@/hooks/useCount'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Fragment, useMemo, useRef } from 'react'
 
-setKota()
 export default function Home() {
   const refKota = useRef<HTMLInputElement>(null)
 
