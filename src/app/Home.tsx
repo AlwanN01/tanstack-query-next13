@@ -32,7 +32,7 @@ export default function Home() {
   if (postsQuery.isError) return <pre>{JSON.stringify(postsQuery.error)}</pre>
 
   return (
-    <main>
+    <main className='text-red-500 min-h-full'>
       <h1>Tanstack Query</h1>
       <dl>
         {postsQuery.data.map(v => (
